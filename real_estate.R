@@ -37,12 +37,26 @@ ggplot(growth_df, aes(x = year, y = growth, fill = category)) +
     data = subset(growth_df, category != "average_salary_index"),
     stat = "identity",
            position = position_dodge2(width=0.3,  preserve = "single")) +
- 
+  scale_fill_manual(
+    values = c( "average_salary_index"='red',
+                "inflation_index"='blue',
+                "real_estate_index"='green'),
+    labels = c(
+      "average_salary_index" = "Ръст на средната работна заплата",
+      "inflation_index" = "Индекс на потребителските цени",
+      "real_estate_index"="Индекс на цените на недвижимите имоти"
+    )
+  ) +
   scale_fill_viridis(
     alpha = 0.8,
     discrete = TRUE,
     option = "D",
-    aesthetics = "fill"
+    aesthetics = "fill",
+    labels = c(
+      "average_salary_index" = "Ръст на средната работна заплата",
+      "inflation_index" = "Индекс на потребителските цени",
+      "real_estate_index"="Индекс на цените на недвижимите имоти"
+    )
   )+
   
   labs(
@@ -52,6 +66,7 @@ ggplot(growth_df, aes(x = year, y = growth, fill = category)) +
     fill = "Category",
     color = "Category"
   )+
+  
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
             panel.background = element_rect(fill = NA, color = NA))
 
@@ -124,6 +139,9 @@ ggplot(data=growth_after_2014, aes(x = year, y = rebased_growth, colour = catego
             panel.background = element_rect(fill = NA, color = NA),
         panel.grid.major = element_line(color = "gray", size = 0.5),  # Major grid lines
         panel.grid.minor = element_blank()                            # Disable minor grid lines
-        )
+        )+
+  legend(c(""))
 
 ?geom_line
+
+?legend

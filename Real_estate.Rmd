@@ -1,12 +1,13 @@
 ---
-title: "Real Estate Prices"
+title: "Балонът в цените на недвижимите имоти"
+subtitle: "Мит или реалност"
 author: "Ivan Ivanov"
 date: "2024-11-24"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE,message = FALSE, warning = FALSE)
 ```
 
 ```{r}
@@ -31,13 +32,13 @@ customTheme<- theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
 virirdis_fill<-scale_fill_viridis(
     alpha = 0.8,
     discrete = TRUE,
-    option = "D",
+    option = "C",
     aesthetics = "fill"
   )
 viridis_color <-  scale_color_viridis(
   alpha = 0.8,
   discrete = TRUE,
-  option = "D",
+  option = "C",
   aesthetics = "colour"
 )
 
@@ -66,15 +67,25 @@ ggplot(growth_df, aes(x = year, y = growth, fill = category)) +
     stat = "identity",
            position = position_dodge2(width=0.3,  preserve = "single")) +
  
- virirdis_fill+
+  scale_fill_viridis(
+    alpha = 0.8,
+    discrete = TRUE,
+    option = "C",
+    aesthetics = "fill",
+    labels=c("Индекс на растежа на средната работна заплата","Индекс на растежа на цените на недвижимите имоти", "Индекс на потребителските цени")
+  )+
   
   labs(
     title = "Сравнение на растежа на заплати, инфлация и цени на имоти",
     x = "Година",
     y = "Растеж, 2008 година = 100",
-    fill = "Category",
-    color = "Category"
+    fill = "",
+    color = ""
   )+
+   guides(
+    fill = guide_legend(ncol = 1),  # For bar chart legend
+    color = guide_legend(ncol = 1)  # For line chart legend
+  ) +
   customTheme
 ```
 ```{r}
@@ -122,14 +133,24 @@ ggplot(data=growth_after_2014, aes(x = year, y = rebased_growth, colour = catego
     stat = "identity",
     size=1,
     position = position_dodge2(width=0.3,  preserve = "single")) +
- viridis_color +
+ scale_color_viridis(
+    alpha = 0.8,
+    discrete = TRUE,
+    option = "C",
+    aesthetics = "color",
+    labels=c("Индекс на растежа на средната работна заплата", "Индекс на потребителските цени","Индекс на растежа на цените на недвижимите имоти")
+  )+
   labs(
     title = "Сравнение на растежа на заплати, инфлация и цени на имоти",
     x = "Година",
     y = "Растеж, 2008 година = 100",
-    fill = "Category",
-    color = "Category"
+    fill = "",
+    color = ""
   )+
+   guides(
+    fill = guide_legend(ncol = 1),  # For bar chart legend
+    color = guide_legend(ncol = 1)  # For line chart legend
+  ) +
   customTheme
 ```
 ```{r}
@@ -164,14 +185,24 @@ ggplot(growth_df, aes(x = factor(year), y = growth, fill = category)) +
     # date_labels =c(replicate(15,'%Y'),'%month','%month'),
     expand = expansion(mult = c(0.01, 0.02)) # Ensure space for the quarterly points
   ) +
- virirdis_fill+
-  labs(
-    title = "Growth Comparison",
-    x = "Year",
-    y = "Growth (%)",
-    fill = "Category",
-    color = "Category"
+ scale_fill_viridis(
+    alpha = 0.8,
+    discrete = TRUE,
+    option = "C",
+    aesthetics = "fill",
+    labels=c("Индекс на растежа на средната работна заплата","Индекс на растежа на цените на недвижимите имоти", "Индекс на потребителските цени")
   )+
+  labs(
+    title = "Изменение по години",
+    x = "Година",
+    y = "Растеж (%)",
+    fill = "",
+    color = ""
+  )+
+   guides(
+    fill = guide_legend(ncol = 1),  # For bar chart legend
+    color = guide_legend(ncol = 1)  # For line chart legend
+  ) +
   customTheme
 
 ```
@@ -180,18 +211,17 @@ ggplot(growth_df, aes(x = factor(year), y = growth, fill = category)) +
 data_factor<- data%>%mutate(year=factor(year))
 ggplot(data_factor, aes(x =year),) +
   # Bar chart for real_estate_index_growth
-  geom_bar(aes(y = real_estate_index_growth*100, fill = "Real Estate Index Growth"), 
-           stat = "identity", position = position_dodge2(width=0.1,  preserve = "single")) + # Adjust `width` for bar spacing
-  # Line chart for average_interest_rate_mortgage
-  geom_line(aes(y = average_interest_rate_mortgage, color = "Average Interest Rate (Mortgage)"), size = 1,group = 1) +
-  geom_point(aes(y = average_interest_rate_mortgage , color = "Average Interest Rate (Mortgage)"), size = 2) +
+  geom_bar(aes(y = real_estate_index_growth*100, fill = "Ръст в цената"), 
+           stat = "identity", position = position_dodge2(width=0.1,  preserve = "single")) + 
+  geom_line(aes(y = average_interest_rate_mortgage, color = "Лихва по ипотеки (%)"), size = 1,group = 1) +
+  geom_point(aes(y = average_interest_rate_mortgage , color = "Лихва по ипотеки (%)"), size = 2) +
   
   # Scales and secondary y-axis
   scale_y_continuous(
-    name = "Real Estate Index Growth (%)",
+    name = "Ръст в цената (%)",
     limits = c(-30, 20), # Set limits for the left y-axis
     breaks = seq(-30, 20, by = 5), # Define breaks for the left y-axis
-    sec.axis = sec_axis(~./1, name = "Average Interest Rate (Mortgage, %)"),
+    sec.axis = sec_axis(~./1, name = "Лихва по ипотеки (%)"),
     expand = expansion(mult = c(-0.1, 0.1)) # Adds some space for better display
   ) +
   
@@ -209,112 +239,79 @@ ggplot(data_factor, aes(x =year),) +
   
   # Labels and titles
   labs(
-    title = "Real Estate Growth vs Average Mortgage Interest Rate",
-    x = "Year",
-    fill = "Category",
-    color = "Category"
+    title = "Ръст на цените на недвижимите имоти и лихвен процент по ипотека",
+    x = "Година",
+    fill = "",
+    color = ""
   ) +
   
-  # Custom colors for the charts
-  # scale_fill_manual(values = c("Real Estate Index Growth" = "#69b3a2")) +
-  # scale_color_manual(values = c("Average Interest Rate (Mortgage)" = "#404080")) +
  virirdis_fill+
  viridis_color+
  
-  # Theme for better readability
-  # theme_minimal() +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1),
     legend.position = "bottom"
   )+
+   guides(
+    fill = guide_legend(ncol = 1),  # For bar chart legend
+    color = guide_legend(ncol = 1)  # For line chart legend
+  ) +
   customTheme
 ```
 ```{r}
-growth_df2 <- data%>%
-  pivot_longer(cols=c(average_price_condo,
-                      mortgage_payment,
-                     ),
-               names_to = 'category',
-               values_to = 'value'
-  )%>%
-  mutate(
-    # Scale `average_price_condo` to align with the primary y-axis (0–100)
-    scaled_value = ifelse(category == "average_price_condo", value, value *200)
-  )
-# Plot with dual y-axes
-ggplot(growth_df2, aes(x = factor(year), fill = category)) +
-  geom_bar(
-    aes(y = scaled_value),
-    stat = "identity",
-    position = position_dodge2(width = 0.1, preserve = "single")
-  ) +
-  scale_x_discrete(
-    breaks = c(
-      '2008-12-31', '2009-12-31', '2010-12-31', '2011-12-31', '2012-12-31',
-      '2013-12-31', '2014-12-31', '2015-12-31', '2016-12-31', '2017-12-31',
-      '2018-12-31', '2019-12-31', '2020-12-31', '2021-12-31', '2022-12-31',
-      '2023-12-31', '2024-03-31', '2024-06-30'
-    ),
-    expand = expansion(mult = c(0.01, 0.02)) # Ensure space for the quarterly points
-  ) +
-  scale_y_continuous(
-    name = "Average Price Condo (in 1000 €)",  # Primary y-axis for `average_price_condo`
-    limits = c(0,200000),
-    sec.axis = sec_axis(~ . / 200,
-                        name = "Mortgage Payment (€)",
-                       )  # Secondary y-axis for `mortgage_payment`
-  ) +
- 
- virirdis_fill+
-  labs(
-    title = "Growth Comparison",
-    x = "Year",
-    fill = "Category"
-  ) +
- customTheme
+# growth_df2 <- data%>%
+#   pivot_longer(cols=c(average_price_condo,
+#                       mortgage_payment,
+#                      ),
+#                names_to = 'category',
+#                values_to = 'value'
+#   )%>%
+#   mutate(
+#     # Scale `average_price_condo` to align with the primary y-axis (0–100)
+#     scaled_value = ifelse(category == "average_price_condo", value, value *200)
+#   )
+# # Plot with dual y-axes
+# ggplot(growth_df2, aes(x = factor(year), fill = category)) +
+#   geom_bar(
+#     aes(y = scaled_value),
+#     stat = "identity",
+#     position = position_dodge2(width = 0.1, preserve = "single")
+#   ) +
+#   scale_x_discrete(
+#     breaks = c(
+#       '2008-12-31', '2009-12-31', '2010-12-31', '2011-12-31', '2012-12-31',
+#       '2013-12-31', '2014-12-31', '2015-12-31', '2016-12-31', '2017-12-31',
+#       '2018-12-31', '2019-12-31', '2020-12-31', '2021-12-31', '2022-12-31',
+#       '2023-12-31', '2024-03-31', '2024-06-30'
+#     ),
+#     expand = expansion(mult = c(0.01, 0.02)) # Ensure space for the quarterly points
+#   ) +
+#   scale_y_continuous(
+#     name = "Средна цена на апартамент €",  # Primary y-axis for `average_price_condo`
+#     limits = c(0,200000),
+#     sec.axis = sec_axis(~ . / 200,
+#                         name = "Вноска по ипотека €",
+#                        )  # Secondary y-axis for `mortgage_payment`
+#   ) +
+#  
+# scale_fill_viridis(
+#     alpha = 0.8,
+#     discrete = TRUE,
+#     option = "C",
+#     aesthetics = "fill",
+#     labels=c("Средна цена на апартамент","Вноска по ипотека")
+#   )+
+#   labs(
+#     title = "Средна цена на апартамент и средна вноска по ипотека",
+#     x = "",
+#     fill = ""
+#   ) +
+#  customTheme
 ```
-```{r}
-data_factor<- data%>%mutate(year=factor(year))
 
-ggplot(data, aes(x = year)) +
-  # Bar chart for real_estate_index_growth
-  geom_bar(aes(y = real_estate_index_growth*100, fill = "Real Estate Index Growth"), 
-           stat = "identity", position = "dodge", width = 200) + 
-  # Line chart for average_interest_rate_mortgage
-  geom_line(aes(y = average_interest_rate_mortgage, color = "Average Interest Rate (Mortgage)"), size = 1) +
-  geom_point(aes(y = average_interest_rate_mortgage , color = "Average Interest Rate (Mortgage)"), size = 2) +
-  
-  # Scales and secondary y-axis
-  scale_y_continuous(
-    name = "Real Estate Index Growth (%)",
-    limits = c(-30, 20), # Set limits for the left y-axis
-    breaks = seq(-30, 20, by = 5), # Define breaks for the left y-axis
-    sec.axis = sec_axis(~./1, name = "Average Interest Rate (Mortgage, %)"),
-    expand = expansion(mult = c(-0.1, 0.1)) # Adds some space for better display
-  ) +
-  
-  # Formatting for the x-axis
-  scale_x_date(
-    date_breaks = "1 year",
-    date_labels = "%Y",
-    expand = expansion(mult = c(0.01, 0.02)) # Ensure space for the quarterly points
-  ) +
-  
-  # Labels and titles
-  labs(
-    title = "Real Estate Growth vs Average Mortgage Interest Rate",
-    x = "Year",
-    fill = "Category",
-    color = "Category"
-  ) +
-  
-  # Custom colors for the charts
-  viridis_color +
- virirdis_fill +
-  
-  # Theme for better readability
-   customTheme
-```
+
+
+
 ```{r}
 growth_df2 <- data%>%
   pivot_longer(cols=c(average_price_condo,
@@ -358,25 +355,41 @@ ggplot(growth_df2, aes(x = factor(year))) +
     expand = expansion(mult = c(0.01, 0.02)) # Ensure space for the quarterly points
   ) +
   scale_y_continuous(
-    name = "Average Price Condo (in 1000 €)",  # Primary y-axis for `average_price_condo`
+    name = "Средна цена на апартамент €",  # Primary y-axis for `average_price_condo`
     limits = c(0,200000),
     sec.axis = sec_axis(~ . / 200,
-                        name = "Mortgage Payment (€)",
+                        name = "Плащане по ипотека €",
                        )  # Secondary y-axis for `mortgage_payment`
   ) +
- viridis_color+
- virirdis_fill+
+ scale_color_viridis(
+    alpha = 0.8,
+    discrete = TRUE,
+    option = "C",
+    aesthetics = "color",
+    labels=c("Вноска по ипотека")
+  )+
+ scale_fill_viridis(
+    alpha = 0.8,
+    discrete = TRUE,
+    option = "C",
+    aesthetics = "fill",
+    labels=c("Средна цена на апартамент")
+  )+
   labs(
-    title = "Growth Comparison",
-    x = "Year",
-    fill = "Category",
-    color = "Category"
+    title = "Цена и средно плащане по ипотека в € ",
+    x = "",
+    fill = "",
+    color = ""
   ) +
   theme(
     axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
     panel.background = element_rect(fill = NA, color = NA),
     axis.title.y.right = element_text(color = "black")  # Secondary axis label visibility
   )+
+   guides(
+    fill = guide_legend(ncol = 1),  # For bar chart legend
+    color = guide_legend(ncol = 1)  # For line chart legend
+  ) +
   customTheme
 
 ```
@@ -401,17 +414,17 @@ ggplot(salary_mortgage, aes(x = factor(year))) +
   geom_bar(
     aes(y = income, fill = category),
     stat = "identity",
-    position = position_dodge2(width = 0.1, preserve = "single")
+    position = position_dodge2(width = 0.1, preserve = "single"),
   ) +
   # Line chart for `mortgage_payment_real_prices_as_percent_houshold_income`
   geom_line(
     data = line_data,
-    aes(y = percentage * (5000 / 150), color = "Mortgage % of Household Income", group = 1),
+    aes(y = percentage * (5000 / 150), color = "Процент на ипотека от среден доход на домакинство", group = 1),
     size = 1.2
   ) +
   geom_point(
     data = line_data,
-    aes(y = percentage * (5000 / 150), color = "Mortgage % of Household Income"),
+    aes(y = percentage * (5000 / 150), color = "Процент на ипотека от среден доход на домакинство"),
     size = 2
   ) +
   # X-axis formatting
@@ -426,30 +439,41 @@ ggplot(salary_mortgage, aes(x = factor(year))) +
   ) +
   # Primary and secondary y-axes
   scale_y_continuous(
-    name = "Income (Лева)",  # Primary y-axis for income
-    sec.axis = sec_axis(~ . / (5000 / 150), name = "Mortgage Payment as % of Income (%)",
+    name = "Доход на домакинство и ипотека в лева",  # Primary y-axis for income
+    sec.axis = sec_axis(~ . / (5000 / 150), name = "Процент на ипотека от среден доход на домакинство",
                         breaks = c(0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150)),
     
   ) +
-  # Add legend for line chart
- virirdis_fill +
- viridis_color+
-  # scale_color_manual(
-  #   values = c("Mortgage % of Household Income" = "red"),
-  #   aesthetics = "color"
-  # ) +
-  # Labels and title
+ scale_color_viridis(
+    alpha = 0.8,
+    discrete = TRUE,
+    option = "C",
+    aesthetics = "color",
+    labels=c("Процент на ипотека от среден доход на домакинство")
+  )+
+ scale_fill_viridis(
+    alpha = 0.8,
+    discrete = TRUE,
+    option = "C",
+    aesthetics = "fill",
+    labels=c("Доход на домакинство лв.","Ипотека лв.")
+  )+
+ 
   labs(
     title = "Доход на домакинство и ипотечно плащане",
-    x = "Year",
-    fill = "Category",
-    color = "Category"
+    x = "",
+    fill = "",
+    color = ""
+  ) +
+   guides(
+    fill = guide_legend(ncol = 1),  # For bar chart legend
+    color = guide_legend(ncol = 1)  # For line chart legend
   ) +
   # Theme adjustments
   theme(
     axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
     panel.background = element_rect(fill = NA, color = NA),
-    # axis.title.y.right = element_text(color = "red")  # Highlight secondary y-axis
+   
   )+
   customTheme
 
@@ -475,17 +499,26 @@ ggplot(prices, aes(x = factor(year), y = price, fill = category)) +
                '2018-12-31','2019-12-31','2020-12-31',
                '2021-12-31','2022-12-31','2023-12-31',
                '2024-03-31','2024-06-30'),
-    # date_labels =c(replicate(15,'%Y'),'%month','%month'),
     expand = expansion(mult = c(0.01, 0.02)) # Ensure space for the quarterly points
   ) +
-  virirdis_fill+
+  scale_fill_viridis(
+    alpha = 0.8,
+    discrete = TRUE,
+    option = "C",
+    aesthetics = "fill",
+    labels=c("Средна цена на апартамент-реална","Средна цена на апартамент-изчислена според възможната ипотека")
+  )+
   labs(
     title = "Цени на апартаменти и изчислена цена на апартаменти",
-    x = "Year",
+    x = "",
     y = "Евро",
-    fill = "Category",
-    color = "Category"
+    fill = "",
+    color = ""
   )+
+   guides(
+    fill = guide_legend(ncol = 1),  # For bar chart legend
+    color = guide_legend(ncol = 1)  # For line chart legend
+  ) +
   # scale_y_continuous(labels = percent) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
         panel.background = element_rect(fill = NA, color = NA))+
