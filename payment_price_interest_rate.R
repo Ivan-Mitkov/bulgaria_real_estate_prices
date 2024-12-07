@@ -13,7 +13,7 @@ data <- data_row%>%
 View(data)
 str(data)
 
-growth_df <- data%>%
+growth_df2 <- data%>%
   pivot_longer(cols=c(average_price_condo,
                       mortgage_payment,
                      ),
